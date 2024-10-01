@@ -1,10 +1,10 @@
-This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.uptex) (TeX Live 2024) (preloaded format=uplatex 2024.7.24)  30 SEP 2024 14:06
+This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.uptex) (TeX Live 2024) (preloaded format=uplatex 2024.7.24)  1 OCT 2024 11:04
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**manu202410.tex
-(./manu202410.tex
+**JSCS202410_KA.tex
+(./JSCS202410_KA.tex
 pLaTeX2e <2023-02-14u04>+1, based on
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
@@ -652,8 +652,12 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layoutvoffset=\dimen327
 \Gm@dimlist=\toks40
 )
-(./manu202410.aux)
-\openout1 = `manu202410.aux'.
+
+LaTeX Warning: Unused global option(s):
+    [paper,10.5pt].
+
+(./JSCS202410_KA.aux)
+\openout1 = `JSCS202410_KA.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
 LaTeX Font Info:    ... okay on input line 25.
@@ -681,30 +685,30 @@ Package caption Info: End \AtBeginDocument code.
 *geometry* detected driver: dvips
 *geometry* verbose mode - [ preamble ] result:
 * driver: dvips
-* paper: a4paper
+* paper: <default>
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(59.27655pt, 478.95477pt, 59.27655pt)
-* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
-* \paperwidth=717.0044pt
-* \paperheight=1014.03809pt
-* \textwidth=478.95477pt
-* \textheight=702.78308pt
-* \oddsidemargin=-12.99344pt
-* \evensidemargin=-12.99344pt
-* \topmargin=-32.09224pt
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(85.35826pt, 674.33032pt, 85.35826pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=674.33032pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-22.609pt
 * \headheight=20.0pt
-* \headsep=10.95413pt
+* \headsep=15.69727pt
 * \topskip=12.76065pt
-* \footskip=23.71478pt
-* \marginparwidth=9.24683pt
+* \footskip=28.45792pt
+* \marginparwidth=18.49365pt
 * \marginparsep=18.49365pt
 * \columnsep=18.49365pt
 * \skip\footins=16.0pt plus 5.0pt minus 2.0pt
-* \hoffset=12.0588pt
-* \voffset=12.0588pt
-* \mag=1200
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
 * \@twocolumnfalse
 * \@twosidefalse
 * \@mparswitchfalse
@@ -748,8 +752,12 @@ LaTeX Font Info:    Font shape `JT2/mc/m/n' will be
 (Font)              scaled to size 8.32214pt on input line 85.
 LaTeX Font Info:    Font shape `JY2/mc/m/n' will be
 (Font)              scaled to size 8.32214pt on input line 85.
- [2]
-[3] [4] (./manu202410.aux)
+
+Overfull \hbox (5.64532pt too wide) in paragraph at lines 126--135
+ [][][][] 
+ []
+
+[2] [3] [4] (./JSCS202410_KA.aux)
  ***********
 pLaTeX2e <2023-02-14u04>+1, based on
 LaTeX2e <2023-11-01> patch level 1
@@ -758,11 +766,11 @@ L3 programming layer <2024-02-20>
  ) 
 Here is how much of TeX's memory you used:
  18000 strings out of 474774
- 366875 string characters out of 5758802
- 1944032 words of memory out of 5000000
+ 366912 string characters out of 5758802
+ 1943032 words of memory out of 5000000
  40085 multiletter control sequences out of 15000+600000
  565581 words of font info for 79 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
- 85i,18n,93p,950b,747s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 85i,18n,93p,953b,747s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on manu202410.dvi (4 pages, 28844 bytes).
+Output written on JSCS202410_KA.dvi (4 pages, 28296 bytes).

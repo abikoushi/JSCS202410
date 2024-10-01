@@ -1,0 +1,95 @@
+\documentclass[dvipdfmx, dvipsnames]{beamer}
+\usetheme[secheader]{Boadilla}
+% \usepackage{beamerthemesplit} // Activate for custom appearanced
+%\setbeamertemplate{caption}[numbered]
+\usefonttheme[onlymath]{serif} %数式をゴシックにしない
+%\setbeamertemplate{blocks}[rounded] % Blockの影を消す
+\useinnertheme{circles} % 箇条書きをシンプルに
+\setbeamertemplate{navigation symbols}{} % ナビゲーションシンボルを消す
+\setbeamertemplate{footline}[frame number] % フッターはスライド番号のみ
+\setbeamercolor{page number in head/foot}{fg=black}
+% \usepackage{beamerthemesplit} // Activate for custom appearance
+%\setlength{\parindent}{1em}  %段落字下げ
+\renewcommand{\figurename}{Fig}
+\renewcommand{\tablename}{Tab}
+\usepackage[caption=false]{subfig}
+%\usepackage{blindtext}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing,calligraphy}
+\usetikzlibrary{angles,quotes} % for pic
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize} %subitem を同じ大きさに
+%
+%\setbeamertemplate{itemize subitem}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  %to set the symbol size
+\usetikzlibrary{shapes,positioning}
+\usepackage{xcolor}
+
+\def\mathunderline#1#2{\color{#1}\underline{{\color{black}#2}}\color{black}}
+
+\setbeamercolor{block title}{bg=gray!10} %block title の背景
+\setbeamercolor{block body}{bg=white} %block の中身
+
+%list を black-right-triangle にするコマンド
+\newcommand{\triangleitem}{
+\setbeamertemplate{itemize item}{\color{RedOrange}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{RedOrange}$\blacktriangleright$}
+}
+
+\title{疎行列の非負値行列因子分解のための\\効率的な近似推定法}
+\date{2024年10月}
+
+%\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+%\setcounter{footnote}{0} 
+
+\author {阿部興 \footnote{東京科学大学 総合研究院 難治疾患研究所} ・島村徹平$^1$}
+
+\begin{document}
+\frame{
+\titlepage
+}
+\begin{frame}
+\frametitle{動機}
+\begin{figure}
+\begin{tikzpicture}[every node/.style={text width=90pt, align=center}]
+\node at (0,0)(curse){次元の呪い};
+%\node[below = of curse](encurse){Curse of dimensionality};
+\node[right = of curse] (bless){次元の祝い\footnote[frame]{Gelman, A. (2004).``The blessing of dimensionality'' \url{https://statmodeling.stat.columbia.edu/2004/10/27/the_blessing_of/}}};
+%\node[below = of bless](enbless){Blessing of dimensionality};
+\path[draw, very thick, ->](curse)--(bless);
+\end{tikzpicture}
+\end{figure}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item[$\bigcirc$] 高次元の積分は難しい
+\item[$\triangle$] 高次元のデータ分析はややこしい
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item[$\circledcirc$] 見えるもの（変数）が多いことは嬉しい！
+　\color{gray}{たとえそれが ``0" だったとしても}
+\end{itemize}
+\end{column}
+\end{columns}
+\vspace{\baselineskip}
+\centering 
+疎（sparse）なデータ　$\neq$　汚いデータ
+%\color{gray}{「0 vs. 0 で『有意差』を出したい」のような無理を言わなければ}
+\end{frame}
+
+\begin{frame}
+\frametitle{非負値行列因子分解（NMF）の紹介}
+\begin{itemize}
+\item 得られたデータを低次元に射影して圧縮することでパターンを抽出
+\item 非負性の制約により解釈がしやすい 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{疎行列とNMF}
+\begin{itemize}
+\item 観測のゼロ過剰や過分散をモデル化したケース\footnote{e.g. Abe, H., \& Yadohisa, H. (2017). A non-negative matrix factorization model based on the zero-inflated Tweedie distribution. Computational Statistics, 32(2), 475-499. \\ Gouvert, O., Oberlin, T., \& F\'evotte, C. (2020). Negative binomial matrix factorization. IEEE Signal Processing Letters, 27, 815-819.}
+\item 分解で得られる行列を疎にしようとした議論\footnote{e.g.  Hyunsoo, K. \&  Haesun, P. (2007). Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis, Bioinformatics,  23 (12), 1495--1502. \\ Kim, H., \& Park, H. (2007). Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis. Bioinformatics, 23(12), 1495-1502.}
+ \end{itemize}
+ \end{frame}
+\end{document} 
