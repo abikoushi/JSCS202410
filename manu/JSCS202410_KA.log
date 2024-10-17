@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.uptex) (TeX Live 2024) (preloaded format=uplatex 2024.7.24)  1 OCT 2024 11:04
+This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.uptex) (TeX Live 2024) (preloaded format=uplatex 2024.7.24)  4 OCT 2024 18:07
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -763,14 +763,18 @@ pLaTeX2e <2023-02-14u04>+1, based on
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 18000 strings out of 474774
- 366912 string characters out of 5758802
+ 17999 strings out of 474774
+ 366899 string characters out of 5758802
  1943032 words of memory out of 5000000
- 40085 multiletter control sequences out of 15000+600000
+ 40084 multiletter control sequences out of 15000+600000
  565581 words of font info for 79 fonts, out of 8000000 for 9000
  934 hyphenation exceptions out of 8191
  85i,18n,93p,953b,747s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on JSCS202410_KA.dvi (4 pages, 28296 bytes).
+Output written on JSCS202410_KA.dvi (4 pages, 28332 bytes).
