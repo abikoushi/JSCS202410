@@ -5,5 +5,4 @@
 *.log
 *.aux
 *.toc
-*.syntex.gz
-
+*.synctex
