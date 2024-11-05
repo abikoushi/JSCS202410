@@ -1,1 +1,9 @@
 .DS_Store
+*.snm
+*.out
+*.nav
+*.log
+*.aux
+*.toc
+*.syntex.gz
+

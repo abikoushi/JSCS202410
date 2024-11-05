@@ -23,7 +23,7 @@
 %
 %\setbeamertemplate{itemize subitem}{\normalsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}  %to set the symbol size
 
-\usepackage{xcolor}
+\usepackage{fancyvrb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 %数式用の下線
@@ -50,51 +50,54 @@
 \frame{
 \titlepage
 }
-\begin{frame}
-\frametitle{動機: 精神面}
-\begin{figure}
-\begin{tikzpicture}[every node/.style={text width=90pt, align=center}]
-\node at (0,0)(curse){次元の呪い};
-%\node[below = of curse](encurse){Curse of dimensionality};
-\node[right = of curse] (bless){次元の祝い\footnote[frame]{Gelman, A. (2004).``The blessing of dimensionality'' \url{https://statmodeling.stat.columbia.edu/2004/10/27/the_blessing_of/}}};
-%\node[below = of bless](enbless){Blessing of dimensionality};
-\path[draw, very thick, ->](curse)--(bless);
-\end{tikzpicture}
-\end{figure}
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\begin{itemize}
-\item[$\bigcirc$] 高次元の積分は難しい
-\item[$\triangle$] 高次元のデータはややこしい
-\end{itemize}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{itemize}
-\item[$\circledcirc$] 見えるものが多いとうれしい \color{gray}{たとえそのほとんどが ``0" だったとしても}
-\end{itemize}
-\end{column}
-\end{columns}
-\vspace{\baselineskip}
-\centering 
-疎（sparse）なデータ　$\neq$　汚いデータ
 
-%\color{gray}{「0 vs. 0 で『有意差』を出したい」のような無理を言わなければ}
-\end{frame}
 
 \begin{frame}
 \frametitle{動機: 分析対象}
 Bischoff et al. (2021)  \footnote{Bischoff, P., Trinks, A., Obermayer, B. et al. Single-cell RNA sequencing reveals distinct tumor microenvironmental patterns in lung adenocarcinoma. Oncogene 40, 6748–6758 (2021). \url{https://doi.org/10.1038/s41388-021-02054-3}}の肺がんに関する単一細胞RNA発現量データ
 \begin{itemize}
-\item 行（遺伝子）: 33, 514
+\item 行（遺伝子）: 33,514
 \item 列（細胞）: 120,961
 \item 非ゼロ要素: 239,634,370 (全体の5\%程度)
 \end{itemize}
-単一細胞解析の分野では, この研究のデータが特に大きいわけではない
+単一細胞解析の分野では, この研究のデータが特別に大きいわけではない
 \begin{figure}
-\includegraphics[height=0.4\textheight, clip]{./img/image_sp.jpg}
+\includegraphics[height=0.3\textheight, clip]{./img/heatmap.png}
+\caption{ゼロ要素を白, 非ゼロ要素を黒としたヒートマップ. 黒はほとんど見えない.}
 \end{figure}
 \end{frame}
 
+%\begin{frame}
+%\frametitle{動機: 精神面}
+%\begin{figure}
+%\begin{tikzpicture}[every node/.style={text width=90pt, align=center}]
+%\node at (0,0)(curse){次元の呪い};
+%%\node[below = of curse](encurse){Curse of dimensionality};
+%\node[right = of curse] (bless){次元の祝い\footnote[frame]{Gelman, A. (2004).``The blessing of dimensionality'' \url{https://statmodeling.stat.columbia.edu/2004/10/27/the_blessing_of/}}};
+%%\node[below = of bless](enbless){Blessing of dimensionality};
+%\path[draw, very thick, ->](curse)--(bless);
+%\end{tikzpicture}
+%\end{figure}
+%\begin{columns}
+%\begin{column}{0.5\textwidth}
+%\begin{itemize}
+%\item[$\bigcirc$] 高次元の積分は難しい
+%\item[$\triangle$] 高次元のデータはややこしい
+%\end{itemize}
+%\end{column}
+%\begin{column}{0.5\textwidth}
+%\begin{itemize}
+%\item[$\circledcirc$] 見えるものが多いとうれしい \color{gray}{たとえそのほとんどが ``0" だったとしても}
+%\end{itemize}
+%\end{column}
+%\end{columns}
+%\vspace{\baselineskip}
+%\centering 
+%疎（sparse）なデータ　$\neq$　汚いデータ
+%
+%\color{gray}{「0 vs. 0 で『有意差』を出したい」のような無理を言わなければ}
+%\end{frame}
+%
 \begin{frame}
 \frametitle{非負値行列因子分解（NMF）}
 \begin{itemize}
@@ -125,7 +128,7 @@ Bischoff et al. (2021)  \footnote{Bischoff, P., Trinks, A., Obermayer, B. et al.
 \end{figure}
 
 \begin{align*}
-P(I=i , J=j) = \sum_l  \underbrace{P(I=i |L= l)}_{Z}  \underbrace{P(J=j |L= l)}_{W} P(L=l)
+P(I=i , J=j) = \sum_l  \underbrace{P(I=i |L= l)}_{ \propto Z}  \underbrace{P(J=j |L= l)}_{ \propto W} P(L=l)
 \end{align*}
 
 \end{frame}
@@ -139,7 +142,7 @@ P(I=i , J=j) = \sum_l  \underbrace{P(I=i |L= l)}_{Z}  \underbrace{P(J=j |L= l)}_
 
 \vfill
 
-本研究: 疎であることを積極的に利用して計算効率を高める
+\structure{本研究:} 疎であることを積極的に利用して計算効率を高める
 \end{frame}
  
  \begin{frame} 
@@ -186,7 +189,7 @@ $r_n$ & $c_n$ & $x_n$\\
  \end{frame}
  
 \begin{frame} 
-\frametitle{対数尤度の評価}
+\frametitle{十分統計量再考}
 
 指数型分布族:
 \begin{align*}
@@ -196,25 +199,45 @@ $T(x) = (T_1(x), T_0)'$, $\eta(\theta) = (\eta_1(\theta), \eta_0(\theta))'$と�
 
  $T_1(x)$: $x$に依存する. $T_0$: $x$ に依存しない. 
 
-$T_1(0)=0$ のとき,
-
+$T_1(0)=0$ ならば,
 \begin{align*}
 \sum_i &\log p(x_i|\theta) \\
-&= \left(\sum_{i \in \mbox{nonzero part}}T_1(x)'  \eta_1(\theta_i))\right) + \left(\sum_{j \in \mbox{all of the data}}{T_0 \eta_0(\theta_j)}\right)
+&= \left(\sum_{i \in \mbox{nonzero part}}T_1(x)'  \eta_1(\theta_i)\right) + \left(\sum_{j \in \mbox{all of the data}}{T_0 \eta_0(\theta_j)}\right).
 \end{align*}
 
-例: ベルヌーイ分布
+ゼロ要素にアクセスせずに対数尤度の評価ができる
+\end{frame}
+
+\begin{frame}
+\frametitle{ベイズ更新}
+共役事前分布:
+ \begin{align*}
+\phi(\theta|\xi_1, \xi_0) = \frac{1}{Z(\xi_1, \xi_0)} \exp(\eta_1(\theta)\xi_1 + \eta_0(\theta)\xi_0)
+\end{align*}
+事後分布:
+ \begin{align*}
+&\phi^{\ast} (\theta|\xi_1, \xi_0, x) ~ \left(\propto \phi(\theta|\xi_1, \xi_0) p(x|\theta)\right)\\
+& \quad =\phi(\theta|\xi_1+T_1(x), \xi_0+T_0).
+\end{align*}
+
+\vfill
+
+\structure{例:} ポアソン分布
 \begin{align*}
-T_1(x) = (x),~ T_0(x) = (1),~ \eta_1(\theta) = (\log(\theta/(1-\theta))), ~\eta_0(\theta)=(\log(1-\theta))
+T_1(x) = (x, \log(x!))', ~ T_0 = (1),\\
+\eta_1(\theta) = (\log(\theta), -1)', ~\eta_0(\theta)=(-\theta).
+\end{align*}
+共役事前分布 (ガンマ分布):
+\begin{align*}
+\log (\mathrm{Gamma}(\theta|a,b)) =  (\xi_1-1) \log(\theta)  - \xi_0 \theta + \log\left(  \underbrace{\xi_0^{\xi_1}/\Gamma(\xi_1)}_{Z(\xi_1, \xi_0)}\right).
 \end{align*}
 \end{frame}
  
- 
-  \begin{frame}
+ \begin{frame}
 \frametitle{モデル}
-これよりポアソン分布の行列分解モデルを考える
+ポアソン分布の行列因子分解のための確率モデル\footnote{Cemgil, A. T.(2009). Bayesian Inference for Nonnegative Matrix Factorization Models, Computational Intelligence and Neuroscience, 785152, 17 \url{https://doi.org/10.1155/2009/785152}}:
 \begin{align*}
-x_{ij} = \sum_{l=1}u_{ijl}, \quad u_{ijl} &\sim \mathrm{Pois} \left(\sum_{l}z_{il}w_{jl} \right) 
+x_{ij} = \sum_{l=1}u_{ijl}, \quad u_{ijl} &\sim \mathrm{Pois} \left(z_{il}w_{jl} \right) 
 \end{align*}
 
 事前分布: 
@@ -224,9 +247,9 @@ z_{il} \sim \mathrm{Gamma}(a, b), \quad  w_{jl} \sim \mathrm{Gamma}(a, b).
 
 \vfill
 
-\structure{Note:} $x_{ij}$は次と同値
+\structure{Note:} $x_{ij}$ は次と同値
 \begin{align*}
-x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right) \label{mod1},\\
+x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right).
 \end{align*}
 
 \end{frame}
@@ -260,9 +283,9 @@ x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right) \label
 \State $\alpha^z_{il} \leftarrow  a$; $\alpha^w_{jl} \leftarrow a$ ($i=1,\ldots, R$, $j=1,\ldots, C$)
 \For{$n \in \{1, \ldots, N_1\}$}
 \For{$l  \in \{1, \ldots, L\}$} 
-    \State $\displaystyle U_{nl} \leftarrow  \frac{x_n \exp(E_q[\log z_{r_nl}] + E_q[\log w_{c_n j}] )}{ \sum_{l=1}^L \exp(E_q[\log z_{r_nl}]+E_q[\log w_{c_n l}] )}$ 
-    \State $\tilde \alpha^z_{r_nl}  \leftarrow \alpha^z_{r_n l} + U_{nl}$
-    \State  $\tilde \alpha^w_{c_n l} \leftarrow  \alpha^w_{c_n l}+ U_{n l}$ 
+    \State $\displaystyle U_{nl} \leftarrow  \frac{x_n \exp(E_q[\log z_{r_nl}] + E_q[\log w_{c_n l}] )}{ \sum_{l=1}^L \exp(E_q[\log z_{r_nl}]+E_q[\log w_{c_n l}] )}$ 
+    \State $\alpha^z_{r_nl}  \leftarrow \alpha^z_{r_n l} + U_{nl}$
+    \State  $\alpha^w_{c_n l} \leftarrow  \alpha^w_{c_n l}+ U_{n l}$ 
 \EndFor
 \EndFor
 \State Return $\alpha^z_{il}$, $\alpha^w_{jl}$ ($i=1,\ldots, R$, $j=1,\ldots, C$)
@@ -283,8 +306,8 @@ x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right) \label
 \begin{algorithmic}[1]
 \State Function {updateB($Z$, $W$, $b$)}
 \For{$l  \in 1, \ldots, L$} 
-    \State $\tilde \beta^z_{l}  \leftarrow  b +(\sum_j E_q[w_{jl}])$
-    \State $\tilde \beta^w_{l}  \leftarrow b +(\sum_i E_q[z_{il}])$ 
+    \State $\beta^z_{l}  \leftarrow  b +(\sum_j E_q[w_{jl}])$
+    \State $\beta^w_{l}  \leftarrow b +(\sum_i E_q[z_{il}])$ 
  \EndFor
 \State Return $\beta^z_{l} $, $\beta^w_{l}$ ($l=1,\ldots , L$) 
   \State EndFunction
@@ -322,8 +345,8 @@ x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right) \label
 
 計算量は, 
 \begin{itemize}
-\item 通常のNMFのアルゴリズム: {\color{RoyalBlue}{$R\cdot C \cdot L$}}に比例
-\item 提案法: $\mbox{(非ゼロ要素の数)} \cdot L=$ {\color{RoyalBlue}{ $R \cdot C \cdot \mbox{(非ゼロ要素の割合)} \cdot L$ }} に比例
+\item 通常のNMFのアルゴリズム\footnote{Gaujoux, R., Seoighe, C. A  (2010). A flexible R package for nonnegative matrix factorization. BMC Bioinformatics 11, 367.}: \structure{$R\cdot C \cdot L$}に比例
+\item 提案法: \structure{$R \cdot C \cdot \mbox{(非ゼロ要素の割合)} \cdot L$} に比例
 \end{itemize}
 \end{frame}
 
@@ -347,7 +370,7 @@ x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il} w_{lj} \right) \label
 \begin{frame}
 \frametitle{確率的変分ベイズ法}
 
-方針: 毎回すべてのデータセットを使うのでなく, リサンプルして更新を繰り返す
+方針: 毎回すべてのデータセットを使うのでなく, リサンプルして更新を繰り返す\footnote{Hoffman, M. D., Blei, D. M., Wang, C., \& Paisley, J. (2013). Stochastic variational inference. Journal of Machine Learning Research.}
 
 \vfill
 
@@ -363,25 +386,28 @@ $(i,j)$ が独立な離散一様分布とすると,
 \end{align*}
 
 \vfill
-
-※サイズ $S$ のミニバッチを取るとき第2項は$S$倍
+{\triangleitem
+\begin{itemize}
+\item サイズ $S$ のミニバッチを取るとき第2項は$S$倍
+\end{itemize}
+}
 \end{frame}
 
-\begin{frame}
-\frametitle{欠損値のある場合}
+%\begin{frame}
+%\frametitle{欠損値のある場合}
 
-欠損の有無が行列の値と独立な場合, 欠損の部分の尤度は1
+%欠損の有無が行列の値と独立な場合, 欠損の部分の尤度は1
 
-\vfill
+%\vfill
 
-サンプル1つあたりの尤度:
-\begin{align*}
-E_{(i,j)} [ \ell_n (Z, W)] \approx  &\left\{{u_{nl} \log(z_{r_nl} \cdot w_{c_nl})}  - \log(u_{nl}!) \right\} \\
-&+ \left\{ \left(\ \sum_{i=1}^{R} p(i)z_{il} \right) \cdot \left( \sum_{j=1}^{C} p(j) w_{jl}\right) \right\}.
-\end{align*}
+%サンプル1つあたりの尤度:
+%\begin{align*}
+%E_{(i,j)} [ \ell_n (Z, W)] \approx  &\left\{{u_{nl} \log(z_{r_nl} \cdot w_{c_nl})}  - \log(u_{nl}!) \right\} \\
+%&+ \left\{ \left(\ \sum_{i=1}^{R} p(i)z_{il} \right) \cdot \left( \sum_{j=1}^{C} p(j) w_{jl}\right) \right\}.
+%\end{align*}
 
-$p(i)$, $p(j)$ は経験分布を用いる. 独立性は仮定. 
-\end{frame}
+%$p(i)$, $p(j)$ は経験分布を用いる. 独立性は仮定. 
+%\end{frame}
 
 \begin{frame}[fragile=singleslide]
 \frametitle{擬似コード: 確率的変分ベイズ法}
@@ -427,15 +453,19 @@ $\mathcal{D}$ をサイズ $S_k$ のミニバッチ $\mathcal{D}^{(k)}$ に分�
 
 {\scriptsize
 \begin{verbatim}
-R> res <- NMF::nmf(as.matrix(MM), rank = 2)
+R> Mat <- Matrix::readMM("path")
+R> res <- NMF::nmf(as.matrix(Mat), rank = 2)
+\end{verbatim}
+\color{RedOrange}{
+\begin{verbatim}
 Error in h(simpleError(msg, call)) :  
   error in evaluating the argument 'x' in selecting a method for function 'nmf':
-  vector memory limit of 24.0 Gb reached, see mem.maxVSize()
+vector memory limit of 24.0 Gb reached, see mem.maxVSize()
 In addition: Warning message:
 In asMethod(object) :
   sparse->dense coercion: allocating vector of size 30.2 GiB
 \end{verbatim}
-}
+}}
 すべてをメモリ上に展開するのは無理がある
 \end{frame}
 \begin{frame}
@@ -443,22 +473,29 @@ In asMethod(object) :
 細胞（列）の特徴量 $W$ をプロット
 
 \begin{figure}
-\begin{tabular}{cc}
+\begin{tabular}{ccc}
 \begin{minipage}{0.45\textwidth}
-\includegraphics[width=0.8\textwidth]{img/W_bycelltype}
-\caption{NMF}
+\includegraphics[width=0.9\textwidth]{img/W_celltype.png}
+\caption{NMF: ミニバッチサイズ $10^8$, $\tau=1$, $\kappa=0.9$ とした}
 \end{minipage}
 &
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}{0.22\textwidth}
+\includegraphics[width=\textwidth]{img/UMAP_r15.png}
+\caption{\scriptsize UMAP: NMFで15次元にしたものをさらに2次元に.}
+\end{minipage}
+&
+\begin{minipage}{0.22\textwidth}
 \includegraphics[width=\textwidth]{img/UMAP_celltype.png}
-\caption{UMAP}
+\caption{\scriptsize UMAP: PCAで15次元にしたものをさらに2次元に. Bischoff et al. (2021) より.}
 \end{minipage}
 \end{tabular}
 \end{figure}
+
+UMAPは大規模なデータに対しても高速な実装があるため単一細胞解析でよく使われるが解釈が難しい \footnote{Chari, T., \& Pachter, L. (2023). The specious art of single-cell genomics. PLoS Comput Biol.  17;19(8):e1011288. doi: 10.1371/journal.pcbi.1011288. }
 \end{frame}
 
 \begin{frame}
-\frametitle{拡張: Blessing of dimensionality へ向けて}
+\frametitle{拡張: Blessing of dimensionalityへ向けて}
 Abe \& Shimamura (2023) のモデル\footnote{Abe, K. \& Shimamura, T. (2023). UNMF: a unified nonnegative matrix factorization for multi-dimensional omics data, Briefings in Bioinformatics, 24(5), bbad253, \url{https://doi.org/10.1093/bib/bbad253}}を次のように表記すると本報告との関係がわかる:
 \begin{align*}
 y_{ij} = \sum_{l=1}u_{nl}, \quad u_{nl} \sim \mathrm{Pois} \left(\sum_{l} \prod_{d=1}^D v^{(d)}_{x_{nd}, l}\right) 
