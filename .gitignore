@@ -6,3 +6,5 @@
 *.aux
 *.toc
 *.synctex
+*.syntax.gz
+*.bbl
