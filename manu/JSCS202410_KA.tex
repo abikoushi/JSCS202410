@@ -1,0 +1,215 @@
+\documentclass[paper=a4,10.5pt]{jsarticle} %文字サイズは変えても良い
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amssymb, amsmath}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usetikzlibrary{decorations.pathreplacing,calligraphy}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage[top=30truemm,bottom=30truemm,left=25truemm,right=25truemm]{geometry} % ページの設定
+\pagestyle{empty} %ページ番号なし
+%\setlength{\headheight}{0truemm}
+%\setlength{\parindent}{1zw}
+\makeatletter
+\def\section{\@startsection {section}{1}{\z@}{.7ex plus .2ex minus .2ex}{.1 ex plus 1.2ex}{\normalsize\bf}}
+\makeatother
+\setstretch{0.9}
+
+\mathtoolsset{showonlyrefs=true} %参照する式のみ番号を出力しそれ以外は消す
+\numberwithin{equation}{section} %
+
+\begin{document}
+%\twocolumn[ 
+\begin{center}
+{\bf \Large 疎行列の非負値行列因子分解のための効率的な近似推定法}
+\vspace{0.3em}
+\begin{tabular}{rl}
+\vspace{-0.1em} \bf 東京科学大学総合研究院難治疾患研究所 &  \bf 阿部興 \\
+\vspace{-0.1em} \bf 東京科学大学総合研究院難治疾患研究所 &  \bf 島村徹平\\
+\end{tabular}
+\vspace{0.5em}
+\end{center}
+%]
+\vspace{\baselineskip}
+
+%\maketitle
+\section{はじめに}
+
+行列分解は行列の形式で得られたデータを低次元に射影して圧縮することでパターンを抽出する手法としてよく知られている. なかでも, 非負値行列因子分解（nonnegative matrix factorization; NMF）は非負性の制約により解釈がしやすい長所があり, 負の値を持たないデータに対して広く利用されている. 
+
+NMFをカウント（0以上の整数）データに適用する場面では, 離散性の強く疎な（ゼロ要素が多い）行列が頻繁に見られる. 具体的な例としては, 生命科学における細胞$\times$遺伝子発現量の行列や, 自然言語を分析する際の文書$\times$単語の行列などがあげられる. 
+
+高次元の疎行列に対してはメモリ効率の観点から適した形式がある.  一方で, 確率モデルや推定論の観点からは, データが疎であることを積極的に活用して計算の効率を高めようとする議論はあまりされてこなかった. 観測のゼロ過剰や過分散をモデル化したケース（e.g. Abe \& Yadohisa, 2017）や, 分解で得られる行列を疎にしようとした議論（e.g. Hyunsoo \&  Haesun, 2007）においてもこの点は考察されていない.  
+
+そこで本報告ではポアソン分布を用いて行列のゼロ要素を省略して計算効率を高める方法を提案する. 確率的勾配降下法に代表される, 大規模なデータに対して効率的にパラメータ推定を成し得る計算の技術は重要で, ディープニューラルネットワークの成功の背景にもそれがあると考えられる. 
+確率的勾配降下法はデータセットからのリサンプリングを行う. しかし, 疎行列の形式で0を省略して格納されているデータにランダムアクセスすることを考えると, 素朴な実装では指定した要素がゼロか非ゼロかはファイルすべてを確認しないとわからないため, 非効率となる. 本報告はこの点を改善するものである. 
+
+\section{手法}
+いま, 非負の整数からなる $R$行, $C$列の行列 $X$ に対して $X \approx ZW'$ となる非負の実行列 $Z$（$R$行, $L$列）, $W$（$C$行, $L$列）を探したい. 分解された行列の次元 $L$ はユーザーが指定する. この分解のもとで, $Z$は各行について, $W$は各列についての特徴量とみなせる.
+この問題の確率モデルとしての定式化と変分ベイズ法による推定については Cemgil (2009) が詳細に議論した. ポアソン分布はカウントデータに対する基本的な分布であるため, Cemgil (2009)の設定に倣い, 確率的データ生成過程として次の組で表されるモデルを考える.
+\begin{align}
+x_{ij} \mid z, w & \sim \mathrm{Pois} \left(\sum_{l}z_{il}w_{lj} \right) \label{mod1},\\
+z_{il} &\sim \mathrm{Gamma} (a, b), \quad w_{jl} \sim \mathrm{Gamma}(a, b). \label{prior1}
+\end{align}
+ここで $x_{ij}$, $z_{il}$, $w_{jl}$ はそれぞれ行列$X$, $Z$, $W$ の $(i,j)$, $(i,l)$, $(j,l)$ 成分とした. また, $\mathrm{Pois} (\lambda) $ は平均$\lambda$のポアソン分布, $ \mathrm{Gamma}(a, b) $は形状, レートパラメータがそれぞれ $a$, $b$ のガンマ分布を表す.  ガンマ分布は条件付き共役性によって選ばれた事前分布である. 
+
+その詳細はCemgil (2009)に譲るが, 推定にあたっての主なアイデアは式 \eqref{mod1} と次の式 \eqref{mod1-2} 
+\begin{align}
+x_{ij} = \sum_{l=1}u_{ijl}, \quad u_{ijl} &\sim \mathrm{Pois} \left(z_{il}w_{jl} \right) \label{mod1-2}
+\end{align}
+が確率分布として同値であることを用いて, 中間的な変数 $u_{ijl}$ を利用することで簡明な平均場近似を導くことである.
+
+
+さて,  一般のカウントデータ $u_{nl}$ ($n=1,\ldots, N$; $l=1, \ldots, L$) に対して次のポアソン分布についての対数尤度関数を考える.
+\begin{align}
+\ell (\lambda) =  \sum _n \left( u_{nl} \log(\lambda_{nl}) - \lambda_{nl} - \log(u_{nl}!) \right). \label{obj0}
+\end{align}
+ここですべての $\lambda_{nl}$ ($n=1,\ldots, N$; $l=1, \ldots, L$)をまとめて $\lambda$と置いた.
+$u_{nl}=0$ のときサンプル1つあたりの尤度は $\log(p(u_{nl}|\lambda_{nl})) = - \lambda_{nl}$ という簡明な形を取る. このことより, 非ゼロの部分 $\xi_1 =\{n|y_n > 0\}$と,  ゼロの部分 $\xi_0=\{n|y_n=0\}$ を分けて考えることで, 式 \eqref{obj0} の対数尤度関数は次のように書ける. 
+\begin{align}
+\ell (\lambda) = \left\{ \sum_{n \in \xi_1} u_{nl} \log(\lambda_{nl}) - \lambda_{nl} - \log(u_{nl}!) \right\} + \left\{  \sum_{n \in \xi_0}  \{- \lambda_{nl}\} \right\} . \label{obj1}
+\end{align}
+
+疎行列のためのデータ形式は複数あるが, ここでは行列の $(i,j)$ 成分の値 $x_{ij}$ を3つ組の変数 $ \mathcal{D}_n  = (i,j,x_{ij})=(r_n, c_n, x_n)$ で表すことを考える.  $x_{ij}=0$ となる $(i,j)$ については省略すると約束し, 非ゼロ要素のみを記録し, $\mathcal{D}=(\mathcal{D}_1, \ldots, \mathcal{D}_{N_1})$ とする. ここで$N_1$ は行列の0でない要素の数である. その例を表\ref{tab1}に示す. 
+\renewcommand{\arraystretch}{0.9}
+\begin{table}[tbp]
+\centering
+\caption{疎行列の例. (A)と(B)は同じ情報を持つ. (B)は本研究で扱う疎行列の形式である. }\label{tab1}
+\begin{tabular}{cc}
+\begin{subtable}{0.2\linewidth}\centering
+{
+\caption*{(A)}
+\begin{tabular}{|ccc|}
+\hline
+1 & 0 & 2\\
+0 & 0 & 2\\
+4 & 1 & 0\\
+\hline
+\end{tabular}
+}
+\end{subtable}
+\begin{subtable}{0.2\linewidth}\centering{
+\caption*{(B)}
+\begin{tabular}{ccc}
+\hline
+$r_n$ & $c_n$ & $x_n$\\
+\hline
+1 & 1 & 1\\
+3 & 1 & 4\\
+3 & 2 & 1\\
+1 & 3 & 2\\
+2 & 3 & 2\\
+\hline
+\end{tabular}
+}
+\end{subtable}
+\end{tabular}
+\end{table}
+\renewcommand{\arraystretch}{1}
+疎行列を表す方法は一意ではなく, この3つ組の変数 $\mathcal{D}_n$ で表す形式を考えたのは計算上の便宜によるところが大きい. しかし, この形式は十分に実用に耐えるものである. 事実, R言語の Matrix パッケージで \verb|TsparseMatrix| クラスとして実装されているものと同値であり, また疎行列をテキストファイルに格納する際によく使われるMatrix Market 形式でも採用されている(Bates et al., 2024).  %単一細胞解析のツールとして人気がある Cell Ranger (Zheng, et al. 2017) の出力として採用されている 
+加えて, 他の形式の疎行列であってもゼロ要素を省略するという基本的なアイデアは変わらないため, 本報告で考察する内容がわずかな変更で適用できるものと考えられる.
+
+再び式 \eqref{mod1-2} のモデルを考えると, 式 \eqref{obj1} の $\lambda_{nl}$ は積 $ z_{r_nl} \cdot w_{c_nl}$ である. よって式 \eqref{obj1} の対数尤度関数は次のように書ける. 
+\begin{align}
+\ell (\lambda) = \sum_n \ell_n (\lambda) = \left\{ \sum_{n \in \xi_1} u_{nl} \log(z_{r_nl} \cdot w_{c_nl})  - \log(u_{nl}!) \right\} + \left\{  \sum_{i=1}^{R}\sum_{j=1}^M  \{-  z_{il}  \cdot w_{jl}\} \right\}. \label{obj2}
+\end{align}
+式 \eqref{obj2} の第1項に必要なのは非ゼロ要素のみである. 第2項は $Z$, $W$ を所与としたときデータの値に依存しない. 式 \eqref{obj2} で表される尤度にガンマ事前分布（式 \refeq{prior1}）の密度をかけ合わせて考えると,  Cemgil (2009) と同様の平均場近似の仮定から変分事後分布が導かれる. 得られる変分事後分布を表\ref{post1}に書き下しておく.
+
+\renewcommand{\arraystretch}{1.6}
+\begin{table}
+\centering
+\caption{変分事後分布の一覧} \label{post1}
+\begin{tabular}{cc}
+\hline
+分布族 & パラメータ\\
+\hline
+多項分布 $q(u_{nl}) = \mathrm{Multi}(y_n, \rho_n)$ & $\rho_n = (\rho_{n1},\dots, \rho_{nL})'$,~ $\displaystyle \rho_{nl} = \frac{\exp(E_q[\log z_{il}] + E_q[\log w_{jl}] )}{ \sum_{l=1}^L \exp(E_q[\log z_{il}] + E_q[\log w_{jl}] )}$\\
+ガンマ分布 $q(z_{il}) = \mathrm{Gamma}(\alpha^z_{il}, \beta^z_l)$ & $\displaystyle \alpha^w_{il}=a+\sum_{n \in \{n|r_n=i\}} E_q[u_{nl}]$,~ $\displaystyle \beta^w_{l} = b+\sum_j E_q[w_j]$\\
+ガンマ分布 $q(w_{jl}) = \mathrm{Gamma}(\alpha^w_{jl}, \beta^w_{l})$ & $\displaystyle \alpha^w_{jl}=a+\sum_{n \in \{n|c_n=j\}} E_q[u_{nl}]$,~ $\displaystyle \beta^w_{l} = b+\sum_i E_q[z_i]$ \\
+\hline
+\end{tabular}
+\end{table}
+\renewcommand{\arraystretch}{1}
+
+変分ベイズ法によるNMFのアルゴリズムは $u_{ijl}$ の変分事後分布である多項分布の更新と, $z_{il}$ と $w_{jl}$ の変分事後分布であるガンマ分布の更新の繰り返しからなる. よって, この結果をまとめると Algorithm \ref{alg:b} を得る. ここでは変分事後分布による期待値を$E_q[\cdot]$で表した. また,変分事後分布のパラメータ $\alpha^z_{i,l}$, $\beta^z_{l}$, $\alpha^w_{j,l}$, $\beta^w_{l}$, ($i=1,\ldots, R$, $j=1,\ldots, C$, $l=1, \ldots ,L$) をそれぞれまとめて, $A^z$, $B^z$, $A^w$, $B^w$ と置いた. さらに, 表記の節約のため, 求めたい変分事後分布のパラメータをすべてまとめて表すときは $\theta = (A^z, B^z, A^w, B^w)$ と置いた. Algorithm \ref{alg:b} ではデータのゼロ要素にアクセスする必要がないことに注意してほしい.
+
+\begin{algorithm}[tbp]
+\caption{NMFの変分ベイズ法による推定. データのゼロ要素にアクセスする必要がない. }\label{alg:b}
+\begin{algorithmic}
+\Require 疎行列 $\mathcal{D}$, 次元 $L$, 事前分布のパラメータ $a$, $b$
+\Ensure $\theta$ \Comment{変分事後分布のパラメータ$A^z, B^z, A^w, B^w$ }
+\State $Z$, $W$, $\log Z$, $\log W$ を初期化  \Comment{$\log X$ は $X$ の要素ごとの対数とする}
+\While{収束するまで}
+% \State $A^z \leftarrow  a$; $A^w \leftarrow a$  \Comment{事前分布のパラメータによる初期化}
+\For{$n  \in \xi_1$} \Comment{$\xi_1$は非ゼロ要素のみ}
+\For{$l  \in 1, \ldots, L$} 
+    \State $\displaystyle U_{nl} \leftarrow  \frac{x_n \exp(E_q[\log z_{r_nl}] + E_q[ \log w_{c_n j}] )}{ \sum_{l=1}^L \exp(E_q[\log z_{r_nl}]+E_q[\log w_{c_n l}] )}$  \Comment{多項分布の期待値である}
+    \State $\alpha^z_{r_n l}  \leftarrow \alpha^z_{r_nl} + U_{nl}$;  $\alpha^w_{c_n l} \leftarrow  \alpha^w_{c_n l}+ U_{nl}$ \Comment{十分統計量のインクリメント}
+\EndFor
+    \EndFor
+    \For{$l  \in 1, \ldots, L$} 
+    \State $\beta^z_{l}  \leftarrow  b +  \sum_i E_q[z_{il}]$; $\beta^w_{l}  \leftarrow b + \sum_j E_q[w_{jl}]$
+        \EndFor
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+次に, Hoffman, et al. (2013) に基づき確率的変分ベイズ法を考える. 狭義の確率的変分ベイズ法はデータセットからサンプルを1つずつ抜き出しながら行うものだが, ここでは応用上の重要性からミニバッチ変分ベイズ法を考えることにする. 確率的変分ベイズ法はデータセットからリサンプリングを行う.   いま, \eqref{obj2} の第2項はすべての行と列のインデックスを参照した場合のものであるから, データセットを部分的に抜き出した場合には成り立たないことが問題となる. 一方で, 必要な行と列のインデックスを直接参照するにはゼロ要素にもアクセスすることになり, 疎行列の形式の利点は失われる. そこで行と列のインデックス$i$, $j$を確率変数とみなし, 期待値で近似する. 
+\begin{align}
+\ell_n (\lambda) \approx E_{(i,j)} [\ell_n (\lambda)] = \left\{ y_n \log(z_{r_nl} \cdot w_{c_nl})  - \log(u_{nl}!) \right\} + E_{(i,j)} [z_{il} \cdot w_{jl}].
+\end{align}
+ここで $E_{(i,j)}$ は行列のインデックスの分布による期待値を表す. 通常, 行列ではすべての行, 列で要素の数が均等である（すなわち, 1行目に比べ2行目が多いというようなことはない）ため, 以降 $i$, $j$の分布として離散一様分布の直積を用いることにする. このとき, サイズ$N_S$の非ゼロのサンプル$S$を抜き出したときの対数尤度の期待値は次式で与えられる.
+\begin{align}
+E_{(i,j)} \left[\sum_{n \in S}  \ell_n (\lambda)\right] = \left\{ u_{nl} \log(z_{r_nl} \cdot w_{c_nl})  - \log(u_{nl}!) \right\} + (N_S/N_1)\left(\sum_{i=1}^R \sum_{j=1}^C \{-z_{il} \cdot w_{jl})\} \right).
+\end{align}
+結果, 目指していた Algorithm \ref{alg:s} を得る. Algorithm \ref{alg:s} ではアルゴリズムの現在のステップにおける更新の候補となる変分パラメータは $\tilde \theta =(\tilde A^z, \tilde B^z, \tilde A^w, \tilde B^w)'$ と表した. 
+Algorithm \ref{alg:s} はミニバッチのサイズ$N_S$を1としたとき狭義の確率的変分ベイズ法となり, $N_S=N_1$としたときAlgorithm \ref{alg:b} と一致する.
+学習率 $\eta_t$ については, Hoffman, et al. (2013) で推奨されている $\eta_t = (N_S/N_1) \cdot (t+\tau)^{-\kappa}$ を使用する. ここで $\tau \ge 0$ と $\kappa \in [0.5,1]$はユーザーが指定するパラメータである.
+
+\begin{algorithm}[tbp]
+\caption{NMFの確率的ミニバッチ変分ベイズ法による推定. }\label{alg:s}
+\begin{algorithmic}
+\Require 疎行列 $\mathcal{D}$, 次元 $L$, 事前分布のパラメータ $a$, $b$, 学習率$\eta_t$, 非ゼロ要素のインデックスをランダムに $K$ 個$S_k$($k=1, \ldots, K$) に分割し, そのサイズを$N_{S_k}$ とする.
+\Ensure $\theta$ \Comment{変分事後分布のパラメータである$A^z, B^z, A^w, B^w$}
+\State $Z$, $W$, $\log Z$, $\log W$ を初期化 \Comment{$\log X$ は $X$ の要素ごとの対数とする}
+\State $t \leftarrow 0$
+\While{収束するまで}
+% \State $A^z \leftarrow  a$; $A^w \leftarrow a$  \Comment{事前分布のパラメータによる初期化}
+\For{$k \in 1, \ldots K$}
+\For{$n \in S_k$}
+\For{$l  \in 1, \ldots, L$} 
+    \State $\displaystyle U_{nl} \leftarrow  \frac{x_n \exp(E_q[\log z_{r_nl}] + E_q[\log w_{c_n j}] )}{ \sum_{l=1}^L \exp(E_q[\log z_{r_nl}]+E_q[\log w_{c_n l}] )}$  \Comment{多項分布の期待値である}
+    \State $\tilde \alpha^z_{r_nl}  \leftarrow \alpha^z_{r_n l} + U_{nl}$;  $\tilde \alpha^w_{c_n l} \leftarrow  \alpha^w_{c_n l}+ U_{n l}$ \Comment{十分統計量のインクリメント}
+\EndFor
+\EndFor
+\For{$l  \in 1, \ldots, L$} 
+    \State $\tilde \beta^z_{l}  \leftarrow  b + (N_{S_k}/N_1) (\sum_j E_q[w_{jl}])$; $\tilde \beta^w_{l}  \leftarrow b +(N_{S_k}/N_1) (\sum_i E_q[z_{il}] )$ 
+    \EndFor
+        \EndFor
+    \State  $ \theta \leftarrow (1-\eta_t) \theta + \eta_t  \tilde \theta$
+   \State $t \leftarrow t+1$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+この提案法についての数値例は紙幅の都合により口頭発表で報告する.
+
+\section{議論とまとめ}
+本研究で確立した手法は行列因子分解以外の手法, 例えば回帰型のモデルや混合分布モデルにも, わずかな変更で応用できる可能性がある. 特に Abe \& Shimamura (2023) で提案されたモデルはデータの文脈と形式を分離したことにより, 変数の次元の増減にも対応でき, マルチレベルモデルに相当する分析を自由に行える. そのため, これらのモデルに本研究の手法を応用することは重要である.
+
+\begin{thebibliography}{9}
+\item{} Abe, H., \& Yadohisa, H. (2017). A non-negative matrix factorization model based on the zero-inflated Tweedie distribution. Computational Statistics, 32(2), 475-499.
+%\item{} Gouvert, O., Oberlin, T., \& F\'evotte, C. (2020). Negative binomial matrix factorization. IEEE Signal Processing Letters, 27, 815-819.
+\item{}Hyunsoo, K. \&  Haesun, P. (2007). Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis, Bioinformatics,  23 (12), 1495--1502, \url{https://doi.org/10.1093/bioinformatics/btm134}
+%\item Kim, H., \& Park, H. (2007). Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis. Bioinformatics, 23(12), 1495-1502.
+\item{} Cemgil, A. T.(2009). Bayesian Inference for Nonnegative Matrix Factorization Models, Computational Intelligence and Neuroscience, 785152, 17 \url{https://doi.org/10.1155/2009/785152}
+\item{} Bates,  D., Maechler, M. \&  Jagan, M.  (2024),  Matrix: Sparse and Dense Matrix Classes and Methods,   \url{https://CRAN.R-project.org/package=Matrix}.
+\item{} Hoffman, M. D., Blei, D. M., Wang, C., \& Paisley, J. (2013). Stochastic variational inference. Journal of Machine Learning Research.
+%\item{} Zheng, G. X. Y. et al. (2017). Massively parallel digital transcriptional profiling of single cells. Nature Communications 8: 1-12, doi:10.1038/ncomms14049. 
+\item{} Abe, K. \& Shimamura, T. (2023). UNMF: a unified nonnegative matrix factorization for multi-dimensional omics data, Briefings in Bioinformatics, 24(5), bbad253, \url{https://doi.org/10.1093/bib/bbad253}
+\end{thebibliography}
+\end{document} 
